@@ -5,7 +5,7 @@ export const config = {
     platform: 'com.mosima.aora',
     projectId: '66a7dcab000f6e4a2a7d',
     databaseId: '66a7de4c002aa284257e',
-    userCollectionId: '66a7de4c002aa284257e',
+    userCollectionId: '66a7de7a0035d097dc36',
     videoCollectionId: '66a7dea40020b57ba50f',
     storageId: '66a7e09a0021c7f01f0a'
 }
@@ -26,23 +26,31 @@ const databases = new Databases(client);
 // Register User
 export const createUser = async (email: string, password: string, username: string) => {
     try {
-        const newUser = await account.create(
+        const newAccount = await account.create(
             ID.unique(),
             email,
             password,
             username
         )
-        if (!newUser) throw new Error
+        if (!newAccount) throw new Error
 
         const avatarUrl = avatars.getInitials(username);
 
         await signIn(email, password);
 
-        // const newUser = await databases.createDocument(
-        //     config.databaseId,
-        //     config.userCollectionId,
-        //     con
-        // )
+        const newUser = await databases.createDocument(
+            config.databaseId,
+            config.userCollectionId,
+            ID.unique(),
+            {
+                accountId: newAccount.$id,
+                email: email,
+                username: username,
+                avatar: avatarUrl,
+            }
+        )
+
+        return newUser
         
     } catch (error) {
         console.log(error);
