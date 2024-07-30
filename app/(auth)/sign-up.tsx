@@ -6,6 +6,7 @@ import { images } from '../../constants'
 import FormField from '@/components/FormField'
 import CustomButton from '@/components/CustomButton'
 import { Link } from 'expo-router'
+import { createUser } from '@/lib/appwrite'
 
 export interface SignUpForm {
   userName: string,
@@ -21,7 +22,7 @@ const SignUp = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const submit = () => {
-
+    // createUser();
   }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
