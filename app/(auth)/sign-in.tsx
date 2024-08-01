@@ -28,12 +28,11 @@ const SignIn = () => {
 
     try {
      await signIn(form.email, form.password)
-
+     router.replace('/home')
     } catch (error) {
       Alert.alert('Error', error as string)
     } finally {
       setIsSubmitting(false)
-      router.replace('/home')
     }
 
   }
