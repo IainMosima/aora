@@ -3,7 +3,7 @@ import SearchInput from '@/components/SearchInput'
 import Trending from '@/components/Trending'
 import VideoCard, { Video } from '@/components/VideoCard'
 import { images } from '@/constants'
-import { getALllPosts } from '@/lib/appwrite'
+import { getALllPosts, getLatestlPosts } from '@/lib/appwrite'
 import useAppwrite from '@/lib/useAppwrite'
 import React, { useState } from 'react'
 import { FlatList, Image, RefreshControl, Text, View } from 'react-native'
@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Home = () => {
   const { data: posts, refetch } = useAppwrite(getALllPosts)
+  const { data: latestPosts } = useAppwrite(getLatestlPosts)
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -56,7 +57,7 @@ const Home = () => {
               <View className="w-full flex-1 pt-5 pb-8">
                 <Text className="text-gray-100 text-lg font-pregular mb-3">Latest Videos</Text>
 
-                <Trending posts={[{ id: 1 }, { id: 2 }, { id: 3 }] ?? []} />
+                <Trending posts={latestPosts} />
               </View>
 
             </View>
