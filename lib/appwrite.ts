@@ -128,16 +128,17 @@ export const getLatestlPosts = async () => {
     }
 }
 
-export const searchPosts = async (query: string) => {
-    try {
-        const posts = await databases.listDocuments(
-            databaseId,
-            videoCollectionId,
-            [Query.search('title', query)]
-        );
-        return posts.documents;
-    } catch (error) {
-        console.log(error);
-        // throw new Error(error);
-    }
+export const searchPosts = async (query: string | undefined) => {
+    if (query)
+        try {
+            const posts = await databases.listDocuments(
+                databaseId,
+                videoCollectionId,
+                [Query.search('title', query)]
+            );
+            return posts.documents;
+        } catch (error) {
+            console.log(error);
+            // throw new Error(error);
+        }
 }

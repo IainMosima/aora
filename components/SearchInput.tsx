@@ -5,6 +5,7 @@ import { Image, Text, TouchableOpacity, View, TextInput, Alert } from 'react-nat
 
 
 interface Props {
+    initalQuery?: string
     // value: string,
     // handleChangeText: (e: string) => void,
     // otherStyle: string,
@@ -12,7 +13,7 @@ interface Props {
 
 const SearchInput = (props: Props) => {
     const pathName = usePathname()
-    const [query, setQuery] = useState('')
+    const [query, setQuery] = useState(props.initalQuery || '')
     return (
         <View className="border-2 border-black-200 w-full h-16 px-4 bg-black-100 rounded-2xl focus:border-secondary flex flex-row items-center space-x-4">
             <TextInput
