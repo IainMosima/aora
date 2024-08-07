@@ -44,9 +44,11 @@ const TrendingItems = (props: TrendingItemsProps) => {
           resizeMode={ResizeMode.CONTAIN}
           useNativeControls
           shouldPlay
-          onPlaybackStatusUpdate={(status) => {
-           console.log(status)
-          }}
+          // onPlaybackStatusUpdate={(status) => {
+          //   if (status.didJustFinish) {
+          //     setPlay(false);
+          //   }
+          // }}
         />
       ) : (
         <TouchableOpacity className="relative justify-center items-center" activeOpacity={0.7} onPress={() => setPlay(true)}>
