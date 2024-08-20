@@ -3,6 +3,7 @@ import SearchInput from '@/components/SearchInput'
 import Trending from '@/components/Trending'
 import VideoCard, { VideoI } from '@/components/VideoCard'
 import { images } from '@/constants'
+import { useGlobalContext } from '@/context/GlobalProvider'
 import { getALllPosts, getLatestlPosts } from '@/lib/appwrite'
 import useAppwrite from '@/lib/useAppwrite'
 import React, { useState } from 'react'
@@ -15,6 +16,7 @@ const Home = () => {
   const { data: posts, refetch } = useAppwrite(getALllPosts)
   const { data: latestPosts } = useAppwrite(getLatestlPosts)
   const [refreshing, setRefreshing] = useState(false);
+  const { user, setUser, setIsLogged } = useGlobalContext()
 
   const onRefresh = async () => {
     setRefreshing(true)
@@ -39,10 +41,10 @@ const Home = () => {
 
                 <View>
                   <Text className="font-pmedium text-sm text-gray-100">
-                    Welcome back
+                    Welcome back,
                   </Text>
                   <Text className='text-2xl font-psemibold text-white'>
-                    Iain Mosima
+                    {user?.username}
                   </Text>
                 </View>
 

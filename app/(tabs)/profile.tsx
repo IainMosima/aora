@@ -1,22 +1,33 @@
 import EmptyState from '@/components/EmptyState'
+import InfoBox from '@/components/InfoBox'
 import SearchInput from '@/components/SearchInput'
 import VideoCard, { VideoI } from '@/components/VideoCard'
-import { searchPosts } from '@/lib/appwrite'
+import { icons } from '@/constants'
+import { useGlobalContext } from '@/context/GlobalProvider'
+import { getUserPosts, signOut } from '@/lib/appwrite'
 import useAppwrite from '@/lib/useAppwrite'
 import { useLocalSearchParams } from 'expo-router'
 import React, { useEffect } from 'react'
-import { FlatList, Text, View } from 'react-native'
+import { FlatList, Text, TouchableOpacity, View, Image } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
 
 
 const Profile = () => {
-  const { query } = useLocalSearchParams()
-  const { data: posts, refetch } = useAppwrite(() => searchPosts(query as string))
+  const { user, setUser, setIsLogged } = useGlobalContext()
+  const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id))
+  const logout = async () => {
+    await signOut()
+    setUser(null)
+    setIsLogged(false)
+
+    router.replace('/sign-in')
+   }
 
   useEffect(() => {
     refetch()
-  }, [query])
+  }, [user])
 
 
   return (
@@ -29,19 +40,40 @@ const Profile = () => {
             <VideoCard video={item as unknown as VideoI} />
           )}
           ListHeaderComponent={() => (
-            <View className='my-6 px-4'>
-              <Text className="font-pmedium text-sm text-gray-100">
-                Search Results
-              </Text>
-              <Text className='text-2xl font-psemibold text-white'>
-                {query}
-              </Text>
+            <View className='w-full justify-center items-center mt-6 mb-12 px-4'>
+              <TouchableOpacity className='w-full items-end mb-10' onPress={logout}>
+                <Image
+                  source={icons.logout}
+                  resizeMode='contain'
+                  className='w-6 h-6'
+                />
+              </TouchableOpacity>
 
-              <View className='mt-6 mb-8'>
-                <SearchInput initalQuery={query as string} />
+              <View className='w-16 h-16 border border-secondary-100 rounded-lg justify-center items-center'>
+                <Image source={{ uri: user?.avatar }} className='w-[90%] h-[90%] rounded-lg' resizeMode='cover' />
+              </View>
+
+              <InfoBox
+                title={user?.username}
+                containerStyle='mt-5'
+                titleStyles='text-lg'
+              />
+
+              <View className='mt-5 flex-row'>
+                <InfoBox
+                  title={posts?.length || 0}
+                  subtitle='Posts'
+                  containerStyle='mr-10'
+                  titleStyles='text-xl'
+                />
+                <InfoBox
+                  title="1.2k"
+                  subtitle="followes"
+                  containerStyle='mr-5'
+                  titleStyles='text-lg'
+                />
               </View>
             </View>
-
           )}
 
           ListEmptyComponent={() => (
