@@ -1,3 +1,4 @@
+import { DocumentPickerResult, FormState } from '@/app/(tabs)/create';
 import { Account, Avatars, Client, Databases, ID, Query } from 'react-native-appwrite';
 
 export const config = {
@@ -167,5 +168,20 @@ export const signOut = async () => {
     } catch (error) {
         console.log(error);
         // throw new Error(error);
+    }
+}
+
+export const uploadFile = async (file: DocumentPickerResult | null, type: string) => {
+
+}
+
+export const creatVideo = async (form: FormState) => {
+    try {
+        const [thumbnail, videoUrl] = await Promise.all([
+            uploadFile(form.thumbnail, 'image'),
+            uploadFile(form.video, 'video')
+        ])
+    } catch (error) {
+        console.log(error);
     }
 }
