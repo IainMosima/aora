@@ -1,5 +1,5 @@
 import { DocumentPickerResult, FormState } from '@/app/(tabs)/create';
-import { Account, Avatars, Client, Databases, ID, Query } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, ID, ImageGravity, Query, Storage } from 'react-native-appwrite';
 
 export const config = {
     endPoint: 'https://cloud.appwrite.io/v1',
@@ -33,6 +33,7 @@ client
 const account = new Account(client);
 const avatars = new Avatars(client)
 const databases = new Databases(client);
+const storage = new Storage(client);
 
 // Register User
 export const createUser = async (email: string, password: string, username: string) => {
@@ -172,8 +173,31 @@ export const signOut = async () => {
 }
 
 export const uploadFile = async (file: DocumentPickerResult | null, type: string) => {
+    if (!file) return;
 
+    const { mimeType, name, size, uri } = file;
+   
+    if (!name) {
+        throw new Error("File name is required");
+    }
+
+    const asset = { type: mimeType ?? '', name, size: size ?? 0, uri };
+
+    try {
+        const uploadedFile = await storage.createFile(
+            storageId,
+            ID.unique(),
+            asset
+        );
+
+        const fileUrl = await getFilePreview(uploadedFile.$id, type)
+        
+        return fileUrl;
+    } catch (error) {
+        console.error(error);
+    }
 }
+
 
 export const creatVideo = async (form: FormState) => {
     try {
@@ -181,7 +205,42 @@ export const creatVideo = async (form: FormState) => {
             uploadFile(form.thumbnail, 'image'),
             uploadFile(form.video, 'video')
         ])
+
+        const newPost = await databases.createDocument(
+            databaseId, videoCollectionId, ID.unique(), {
+                title: form.title,
+                thumbnail: thumbnail,
+                videoUrl: videoUrl,
+                creator: form.userId
+            }
+        )
+
+        return newPost;
     } catch (error) {
         console.log(error);
+    }
+}
+
+export const getFilePreview = async (fileId: string, type: string) => {
+    let fileUrl;
+    
+    try {
+        if (type === 'video') {
+            fileUrl = storage.getFileView(storageId, fileId)
+        } else if (type === 'image') {
+            fileUrl = storage.getFilePreview(storageId, fileId, 2000, 2000, ImageGravity.Top, 100);  
+        } else {
+            throw new Error('Invalid file type')
+        }
+
+        if (!fileUrl) throw Error;
+
+
+        return fileUrl;
+
+    } catch (error) {
+        console.log(error);
+        // throw new Error()
+        
     }
 }

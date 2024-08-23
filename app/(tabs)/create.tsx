@@ -1,13 +1,15 @@
-import { View, Text, TouchableOpacity, Image, Alert } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler'
-import FormField from '@/components/FormField'
-import { ResizeMode, Video } from 'expo-av'
-import { icons } from '@/constants'
 import CustomButton from '@/components/CustomButton'
-import * as DocumentPicker from 'expo-document-picker'
+import FormField from '@/components/FormField'
+import { icons } from '@/constants'
+import { useGlobalContext } from '@/context/GlobalProvider'
+import { creatVideo } from '@/lib/appwrite'
+import { ResizeMode, Video } from 'expo-av'
+import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
+import React, { useState } from 'react'
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native'
+import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 
 export interface DocumentPickerResult {
@@ -18,6 +20,7 @@ export interface DocumentPickerResult {
 }
 
 export interface FormState {
+  userId: string,
   title: string,
   video: DocumentPickerResult | null,
   thumbnail: DocumentPickerResult | null,
@@ -25,17 +28,24 @@ export interface FormState {
 }
 const Create = () => {
   const [uploading, setUploading] = useState(false)
+  const { user, setUser, setIsLogged } = useGlobalContext()
   const [form, setForm] = useState<FormState>({
+    userId: user.$id,
     title: '',
     video: null,
     thumbnail: null,
     prompt: ''
   })
 
+
   const openPicker = async (selectType: string) => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: selectType === 'image' ? ['image/png', 'image/jpg'] : ['video/mp4', 'video/gif']
-    })
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: selectType === 'image' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.Videos,
+      // allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
 
     if (!result.canceled) {
       if (selectType === 'image') {
@@ -59,7 +69,10 @@ const Create = () => {
 
     setUploading(true)
     try {
-
+      await creatVideo({
+        ...form,
+        userId: user.$id,
+      })
 
       Alert.alert('Success', 'Post uploaded successfully')
       router.push('/home')
@@ -68,6 +81,7 @@ const Create = () => {
     } finally {
       setForm(
         {
+          userId: user.id,
           title: '',
           video: { uri: '' } || null,
           thumbnail: { uri: '' } || null,
